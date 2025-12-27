@@ -8,15 +8,13 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build with Buildozer
-        # Kullanıcı adındaki küçük harf hatası düzeltildi (ArtemSerebrennkov)
-        uses: ArtemSerebrennkov/buildozer-action@v1
+        # Resmi Kivy Buildozer Action kullanıyoruz
+        uses: kivy/buildozer-action@master
         with:
-          buildozer_version: master
           command: android debug
           repository_root: .
 
       - name: Upload APK
-        # Deprecated olan v3 sürümü güncel v4 ile değiştirildi
         uses: actions/upload-artifact@v4
         with:
           name: package
