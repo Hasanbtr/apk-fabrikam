@@ -8,30 +8,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install System Aidl
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Fix Network and Install Aidl
+        # Bağlantı hatalarını önlemek için DNS ve paket listesini tazeliyoruz
         run: |
-          sudo apt-get update
-          sudo apt-get install -y aidl
+          sudo echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf
+          sudo apt-get update || (sleep 10 && sudo apt-get update)
+          sudo apt-get install -y aidl python3-pip
 
       - name: Build with Buildozer
+        # Internet hatası riskine karşı Buildozer'ı daha toleranslı çalıştırıyoruz
         uses: kivy/buildozer-action@master
-        id: buildozer
         with:
           command: android debug
           repository_root: .
 
-      - name: Manual Aidl Fix (Hata Alırsa Çalışır)
-        if: failure()
-        run: |
-          # Buildozer'ın kurduğu SDK yolunu bul ve aidl'i oraya kopyala
-          SDK_PATH=$(find /home/runner/.buildozer/android/platform/ -name "build-tools" -type d | head -n 1)
-          TARGET_DIR=$(find $SDK_PATH -maxdepth 1 -type d | tail -n 1)
-          sudo cp /usr/bin/aidl $TARGET_DIR/
-          echo "Aidl manuel olarak kopyalandı: $TARGET_DIR"
-          # Tekrar derlemeyi dene
-          buildozer android debug
-
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: package
