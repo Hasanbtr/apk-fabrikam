@@ -13,15 +13,14 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Fix Network and Install Aidl
-        # Bağlantı hatalarını önlemek için DNS ve paket listesini tazeliyoruz
+      - name: Install System Dependencies
+        # Aidl ve gerekli araçları en başta kuruyoruz
         run: |
-          sudo echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf
-          sudo apt-get update || (sleep 10 && sudo apt-get update)
+          sudo apt-get update
           sudo apt-get install -y aidl python3-pip
 
       - name: Build with Buildozer
-        # Internet hatası riskine karşı Buildozer'ı daha toleranslı çalıştırıyoruz
+        # Gradle hatasını almamak için resmi Buildozer aksiyonunu kullanıyoruz
         uses: kivy/buildozer-action@master
         with:
           command: android debug
