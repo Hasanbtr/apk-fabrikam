@@ -8,9 +8,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Aidl and SDK tools
-        # Hata aldığın "Aidl not found" sorununu bu satır çözer
-        run: sudo apt-get install -y aidl
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies and Android Licenses
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y aidl python3-pip
+          # Android lisanslarını otomatik kabul etme komutu
+          yes | sdkmanager --licenses || true
 
       - name: Build with Buildozer
         uses: kivy/buildozer-action@master
