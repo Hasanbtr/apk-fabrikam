@@ -1,6 +1,6 @@
 name: APK Builder
 on: [push]
- 
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -8,8 +8,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install Aidl and SDK tools
+        # Hata aldığın "Aidl not found" sorununu bu satır çözer
+        run: sudo apt-get install -y aidl
+
       - name: Build with Buildozer
-        # Kivy'nin kendi resmi aracıdır, en güvenlisidir
         uses: kivy/buildozer-action@master
         with:
           command: android debug
