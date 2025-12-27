@@ -8,14 +8,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build APK with Buildozer
-        # En stabil ve resmi olmayan kısıtlamalara takılmayan versiyon
-        uses: ArtemSerebrennkov/buildozer-action@v1
+      - name: Build with Buildozer
+        # Resmi Kivy organizasyonuna ait en güncel sürüm
+        uses: kivy/buildozer-action@master
         with:
           command: android debug
           repository_root: .
 
-      - name: Upload APK Artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: package
