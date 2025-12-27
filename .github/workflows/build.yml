@@ -1,6 +1,6 @@
 name: APK Builder
 on: [push]
- 
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -8,18 +8,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Aidl and System Dependencies
-        # Aidl hatasını manuel kurulumla kökten çözüyoruz
+      - name: Install System Aidl
         run: |
           sudo apt-get update
-          sudo apt-get install -y aidl python3-pip
+          sudo apt-get install -y aidl
 
       - name: Build with Buildozer
-        # Kivy'nin resmi aracını kullanarak tüm süreci Buildozer'a bırakıyoruz
         uses: kivy/buildozer-action@master
+        id: buildozer
         with:
           command: android debug
           repository_root: .
+
+      - name: Manual Aidl Fix (Hata Alırsa Çalışır)
+        if: failure()
+        run: |
+          # Buildozer'ın kurduğu SDK yolunu bul ve aidl'i oraya kopyala
+          SDK_PATH=$(find /home/runner/.buildozer/android/platform/ -name "build-tools" -type d | head -n 1)
+          TARGET_DIR=$(find $SDK_PATH -maxdepth 1 -type d | tail -n 1)
+          sudo cp /usr/bin/aidl $TARGET_DIR/
+          echo "Aidl manuel olarak kopyalandı: $TARGET_DIR"
+          # Tekrar derlemeyi dene
+          buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
